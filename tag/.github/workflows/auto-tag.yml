@@ -1,0 +1,63 @@
+name: Auto Tag on Merge
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main  # أو master حسب اسم الـ branch الرئيسي
+
+jobs:
+  create-tag:
+    # يتم التشغيل فقط إذا تم merge الـ PR
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # للحصول على كل الـ tags
+      
+      - name: Get latest tag and increment
+        id: increment
+        run: |
+          # الحصول على آخر tag
+          LATEST_TAG=$(git tag -l "tag-*" | sort -V | tail -n 1)
+          
+          if [ -z "$LATEST_TAG" ]; then
+            # إذا لم يوجد tags، ابدأ من 1
+            NEW_TAG="tag-1"
+          else
+            # استخراج الرقم من آخر tag وزيادته
+            TAG_NUMBER=$(echo $LATEST_TAG | grep -o '[0-9]*$')
+            NEW_NUMBER=$((TAG_NUMBER + 1))
+            NEW_TAG="tag-$NEW_NUMBER"
+          fi
+          
+          echo "new_tag=$NEW_TAG" >> $GITHUB_OUTPUT
+          echo "Creating new tag: $NEW_TAG"
+      
+      - name: Create and push tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag ${{ steps.increment.outputs.new_tag }}
+          git push origin ${{ steps.increment.outputs.new_tag }}
+      
+      - name: Create Release (اختياري)
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.increment.outputs.new_tag }}
+          release_name: Release ${{ steps.increment.outputs.new_tag }}
+          body: |
+            Auto-generated release from PR #${{ github.event.pull_request.number }}
+            
+            **PR Title:** ${{ github.event.pull_request.title }}
+            **Merged by:** @${{ github.event.pull_request.merged_by.login }}
+          draft: false
+          prerelease: false
