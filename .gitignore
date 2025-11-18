@@ -1,0 +1,22 @@
+# Tokens & Secrets
+*.token
+.env
+.env.local
+secrets/
+
+# Test scripts
+test_*.sh
+*_local.sh
+auto-approval.sh
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
