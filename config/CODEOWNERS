@@ -1,0 +1,9 @@
+# Frontend Team
+/frontend/**        @frontend-team-lead
+/ui/**              @frontend-team-lead
+
+# Backend Team
+/backend/**         @backend-team-lead
+
+# الملفات الحساسة
+/config/production  @company-manager

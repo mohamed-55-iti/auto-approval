@@ -1,0 +1,17 @@
+# قواعد الموافقة التلقائية
+auto_approve:
+  max_files_changed: 10
+  max_lines_changed: 100
+  require_tests_pass: true
+  require_ci_pass: true
+  
+  blocked_patterns:
+    - "config/production/*"
+    - "secrets/*"
+    - ".env*"
+  
+  trusted_developers:
+    ahmed:
+      trust_score: 95
+    sara:
+      trust_score: 88
